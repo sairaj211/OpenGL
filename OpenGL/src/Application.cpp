@@ -8,6 +8,7 @@
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "VertexArray.h"
 
 struct ShaderProgramSource
 {
@@ -145,20 +146,17 @@ int main()
         };
 
         // VERTEX ARRAY OBJECT
-        unsigned int vao;
-        GLCall(glGenVertexArrays(1, &vao));
-        glBindVertexArray(vao);
+        VertexArray va;
 
         // VERTEX BUFFER 
-        unsigned int buffer;
         VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
-        GLCall(glEnableVertexAttribArray(0));
         // specifies the layout
-        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0));
+        VertexBufferLayout layout;
+        layout.Push<float>(2);
+        va.AddBuffer(vb, layout);
 
         // INDEX BUFFER 
-        unsigned int ibo;
         IndexBuffer ib(indices, 6);
 
         ShaderProgramSource soruce = ParseShader("res/shaders/Basic.shader");
@@ -201,7 +199,7 @@ int main()
             glUseProgram(shader);
             glUniform4f(colorLocation, 0.1f, 0.0f, 0.7f, 1.0f);
 
-            glBindVertexArray(vao);
+            va.Bind(); 
             ib.Bind();
 
             // ------------------------------
