@@ -1,7 +1,8 @@
-#include "VertexArray.h"
-#include "Renderer.h"
-
 #include <cstdint>
+
+#include "VertexBufferLayout.h"
+#include "Renderer.h"
+#include "VertexArray.h"
 
 VertexArray::VertexArray()
 {
