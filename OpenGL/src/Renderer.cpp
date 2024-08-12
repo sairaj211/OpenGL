@@ -32,3 +32,8 @@ void Renderer::Clear() const
 {
     GLCall(glClear(GL_COLOR_BUFFER_BIT));
 }
+
+void Renderer::SetClearColor() const
+{
+    GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+}

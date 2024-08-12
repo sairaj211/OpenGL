@@ -15,6 +15,15 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+//imgui 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
+// Test Framework
+#include "Tests/TestClearColor.h"
+#include "Tests/TestTexture2D.h"
+
 int main()
 {
     GLFWwindow* window;
@@ -28,7 +37,7 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -46,75 +55,62 @@ int main()
 
     // TODO : remove this scope
     {
-        // instead create vb and ib on heap using new instead of stack 
-        //vertex positions
-        float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f, //0
-             0.5f, -0.5f, 1.0f, 0.0f, //1
-             0.5f,  0.5f, 1.0f, 1.0f, //2
-            -0.5f,  0.5f, 0.0f, 1.0f  //3
-        };
-
-        unsigned int indices[] = {
-            0, 1, 2,
-            2, 3, 0
-        };
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // VERTEX ARRAY OBJECT
-        VertexArray va;
-
-        // VERTEX BUFFER 
-        VertexBuffer vb(positions, 4 * 4 * sizeof(float));
-
-        // specifies the layout
-        VertexBufferLayout layout;
-        layout.Push<float>(2); // vertices
-        layout.Push<float>(2); // tex coords
-        va.AddBuffer(vb, layout);
-
-        // INDEX BUFFER 
-        IndexBuffer ib(indices, 6);
-
-        // SHADER
-        Shader shader("res/shaders/Basic.shader");
-        shader.Bind();
-        shader.SetUniform4f("u_Color", 0.6f, 0.0f, 0.7f, 1.0f);
-
-        // SET projection matrix
-        glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
-
-        Texture texture("res/textures/eagle.png");
-        texture.Bind();
-        shader.SetUniform1i("u_Texture", 0);
-        shader.SetUniformMat4("u_MVP", proj);
-
-        //Unbind everything
-        va.Unbind();
-        vb.Unbind();
-        ib.Unbind();
-        shader.Unbind();
-
         Renderer renderer;
+
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Platform/Renderer backends
+        ImGui_ImplGlfw_InitForOpenGL(window, true);          
+        ImGui_ImplOpenGL3_Init();
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+
+        // Test code Here:
+        Test::Test* currentTest = nullptr;
+        Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
+        currentTest = testMenu;
+
+        testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
+        testMenu->RegisterTest<Test::TestTexture2D>("Texture 2D");
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
+            renderer.SetClearColor();
             renderer.Clear();
 
-            shader.Bind();
-            shader.SetUniform4f("u_Color", 0.1f, 0.0f, 0.7f, 1.0f);
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-            va.Bind(); 
-            ib.Bind();
+            if (currentTest)
+            {
+                currentTest->OnUpdate(0.0f);
+                currentTest->OnRenderer();
+                ImGui::Begin("Test");
+                if (currentTest != testMenu && ImGui::Button("Back"))
+                {
+                    delete currentTest;
+                    currentTest = testMenu;
+                }
+                currentTest->OnImGuiRenderer();
+                ImGui::End();
+            }
 
-            // in real world this function should take in va, ib, material(which has shader info,
-            // plus all the data)
-            renderer.Draw(va, ib, shader);
-
+            // Rendering
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
@@ -122,8 +118,16 @@ int main()
             /* Poll for and process events */
             glfwPollEvents();
         }
+        delete currentTest;
+        if (currentTest != testMenu)
+        {
+            delete testMenu;
+        }
     }
 
     glfwTerminate();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     return 0;
 }
