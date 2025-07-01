@@ -72,6 +72,12 @@
     <ClCompile Include="src\Tests\TestTexture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\TestBatching.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\TestObject3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -513,6 +519,8 @@
     <None Include="src\vendor\glm\gtx\number_precision.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="res\shaders\Batching.shader" />
+    <None Include="res\shaders\Object3D.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1484,5 +1492,19 @@
     <ClInclude Include="src\Tests\TestTexture2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Tests\TestBatching.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\TestObject3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\textures\eagle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\brick.jpeg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

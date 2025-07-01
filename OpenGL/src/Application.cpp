@@ -23,6 +23,8 @@
 // Test Framework
 #include "Tests/TestClearColor.h"
 #include "Tests/TestTexture2D.h"
+#include "Tests/TestBatching.h"
+#include "Tests/TestObject3D.h"
 
 int main()
 {
@@ -55,17 +57,14 @@ int main()
 
     // TODO : remove this scope
     {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      //  glEnable(GL_BLEND);
+      //  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         Renderer renderer;
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
         // Setup Platform/Renderer backends
         ImGui_ImplGlfw_InitForOpenGL(window, true);          
@@ -81,6 +80,8 @@ int main()
 
         testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
         testMenu->RegisterTest<Test::TestTexture2D>("Texture 2D");
+        testMenu->RegisterTest<Test::TestBatching>("Batching");
+        testMenu->RegisterTest<Test::TestObject3D>("Object 3D");
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))

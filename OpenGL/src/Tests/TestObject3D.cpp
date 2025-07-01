@@ -1,0 +1,124 @@
+#include "TestObject3D.h"
+
+#include "../VertexBuffer.h"
+#include "../IndexBuffer.h"
+#include "../VertexArray.h"
+#include "../VertexBufferLayout.h"
+#include "../Shader.h"
+#include "../Texture.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include <GLFW/glfw3.h>
+
+namespace Test
+{
+	TestObject3D::TestObject3D()
+	{
+		// Vertices coordinates
+		float vertices[] =
+		{ //     COORDINATES     /        COLORS      /   TexCoord  //
+			-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
+			-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
+			 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
+			 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
+			 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
+		};
+
+		// Indices for vertices order
+		unsigned int indices[] =
+		{
+			0, 1, 2,
+			0, 2, 3,
+			0, 1, 4,
+			1, 2, 4,
+			2, 3, 4,
+			3, 0, 4
+		};
+
+		// Enables the Depth Buffer
+
+
+		// VERTEX ARRAY OBJECT
+		m_VAO = std::make_unique<VertexArray>();
+
+		// VERTEX BUFFER 
+		m_VertexBuffer = std::make_unique<VertexBuffer>(vertices, 8 * 5 * sizeof(float));
+
+		// specifies the layout
+		VertexBufferLayout layout;
+		layout.Push<float>(3); // vertices
+		layout.Push<float>(3); // color
+		layout.Push<float>(2); // tex coords
+		m_VAO->AddBuffer(*m_VertexBuffer, layout);
+
+		// INDEX BUFFER 
+		m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 18);
+
+		// SHADER
+		m_Shader = std::make_unique<Shader>("res/shaders/Object3D.shader");
+
+
+		// SET projection matrix
+		m_Proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+		m_View = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+
+		m_Texture = std::make_unique<Texture>("res/textures/brick.jpeg");
+
+		m_Shader->Bind();
+		//m_Shader->SetUniform4f("u_Color", 0.6f, 0.0f, 0.7f, 1.0f);
+		m_Shader->SetUniform1i("u_Texture", 0);
+
+		prevTime = glfwGetTime();
+		rotation = 0.f;
+	}
+
+	TestObject3D::~TestObject3D()
+	{
+	}
+
+	void TestObject3D::OnUpdate(float deltaTime)
+	{
+		// Simple timer
+		double crntTime = glfwGetTime();
+		if (crntTime - prevTime >= 1 / 60)
+		{
+			rotation += 0.5f;
+			prevTime = crntTime;
+		}
+	}
+
+	void TestObject3D::OnRenderer()
+	{
+		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		glEnable(GL_DEPTH_TEST);
+
+		Renderer renderer;
+
+		m_Texture->Bind();
+
+		// Initializes matrices so they are not the null matrix
+		m_Model = glm::mat4(1.0f);
+		m_View = glm::mat4(1.0f);
+		m_Proj = glm::mat4(1.0f);
+
+		// Assigns different transformations to each matrix
+		m_Model = glm::rotate(m_Model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_View = glm::translate(m_View, glm::vec3(0.0f, -0.5f, -2.0f));
+		m_Proj = glm::perspective(glm::radians(45.0f), (float)960 / 540, 0.1f, 100.0f);
+
+		m_Shader->Bind();
+
+		glm::mat4 mvp = m_Proj * m_View * m_Model;
+		m_Shader->SetUniformMat4("u_MVP", mvp);
+
+		renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+
+		glDisable(GL_DEPTH_TEST);
+	}
+
+	void TestObject3D::OnImGuiRenderer()
+	{
+	}
+}
