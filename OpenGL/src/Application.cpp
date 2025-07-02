@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include "Application.h"
 #include "Renderer.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
@@ -26,11 +27,27 @@
 #include "Tests/TestBatching.h"
 #include "Tests/TestObject3D.h"
 
+
+void Application::ResetOpenGLState()
+{
+    // General safe defaults
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthFunc(GL_LESS);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    // If you're using a default VAO or binding 0
+    glBindVertexArray(0);
+    glUseProgram(0);
+}
+
+
 int main()
 {
-    GLFWwindow* window;
-
-    /* Initialize the library */
+    // Initialize GLFW
     if (!glfwInit())
         return -1;
 
@@ -38,97 +55,98 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(960, 540, "Hello World", NULL, NULL);
+    // Create window
+    GLFWwindow* window = glfwCreateWindow(960, 540, "OpenGL Test Framework", nullptr, nullptr);
     if (!window)
     {
         glfwTerminate();
         return -1;
     }
 
-    /* Make the window's context current */
+    // Make the window's context current 
     glfwMakeContextCurrent(window);
+    //glfwSwapInterval(1); // Enable vsync optional
 
-    GLenum err = glewInit();
-    if (GLEW_OK != err)
+    // Initialize GLEW
+    if (glewInit() != GLEW_OK)
     {
-        std::cout << "Error!" << std::endl;
+        std::cout << "Failed to initialize GLEW" << std::endl;
+        return -1;
     }
 
-    // TODO : remove this scope
+    // Setup ImGui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init();
+
+    // Core Rendering Objects
+    Renderer renderer;
+
+    // Setup Test Framework
+    Test::Test* currentTest = nullptr;
+    Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
+    currentTest = testMenu;
+
+    testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
+    testMenu->RegisterTest<Test::TestTexture2D>("Texture 2D");
+    testMenu->RegisterTest<Test::TestBatching>("Batching");
+    testMenu->RegisterTest<Test::TestObject3D>("Object 3D");
+
+    // Timing
+    float lastFrameTime = glfwGetTime();
+
+    // Main Loop
+    while (!glfwWindowShouldClose(window))
     {
-      //  glEnable(GL_BLEND);
-      //  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        float currentTime = glfwGetTime();
+        float deltaTime = currentTime - lastFrameTime;
+        lastFrameTime = currentTime;
 
-        Renderer renderer;
+        renderer.SetClearColor();
+        renderer.Clear();
 
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-        // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForOpenGL(window, true);          
-        ImGui_ImplOpenGL3_Init();
-
-        // Setup Dear ImGui style
-        ImGui::StyleColorsDark();
-
-        // Test code Here:
-        Test::Test* currentTest = nullptr;
-        Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
-        currentTest = testMenu;
-
-        testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
-        testMenu->RegisterTest<Test::TestTexture2D>("Texture 2D");
-        testMenu->RegisterTest<Test::TestBatching>("Batching");
-        testMenu->RegisterTest<Test::TestObject3D>("Object 3D");
-
-        /* Loop until the user closes the window */
-        while (!glfwWindowShouldClose(window))
+        if (currentTest)
         {
-            /* Render here */
-            renderer.SetClearColor();
-            renderer.Clear();
+            currentTest->OnUpdate(deltaTime);
+            currentTest->OnRenderer();
 
-            // Start the Dear ImGui frame
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-
-            if (currentTest)
+            ImGui::Begin("Test");
+            if (currentTest != testMenu && ImGui::Button("Back"))
             {
-                currentTest->OnUpdate(0.0f);
-                currentTest->OnRenderer();
-                ImGui::Begin("Test");
-                if (currentTest != testMenu && ImGui::Button("Back"))
-                {
-                    delete currentTest;
-                    currentTest = testMenu;
-                }
-                currentTest->OnImGuiRenderer();
-                ImGui::End();
+                delete currentTest;
+                Application::ResetOpenGLState();
+                currentTest = testMenu;
             }
-
-            // Rendering
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-            /* Swap front and back buffers */
-            glfwSwapBuffers(window);
-
-            /* Poll for and process events */
-            glfwPollEvents();
+            currentTest->OnImGuiRenderer();
+            ImGui::End();
         }
-        delete currentTest;
-        if (currentTest != testMenu)
-        {
-            delete testMenu;
-        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
-    glfwTerminate();
+    // Cleanup
+    delete currentTest;
+    if (currentTest != testMenu)
+    {
+        delete testMenu;
+    }
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
     return 0;
 }

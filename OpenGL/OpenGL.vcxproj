@@ -167,6 +167,7 @@
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui.cpp" />
+    <ClCompile Include="src\vendor\imgui\ImGuiFileDialog.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\vendor\imgui\imgui_impl_glfw.cpp" />
@@ -642,8 +643,11 @@
     <ClInclude Include="src\vendor\glm\vec3.hpp" />
     <ClInclude Include="src\vendor\glm\vec4.hpp" />
     <ClInclude Include="src\vendor\glm\vector_relational.hpp" />
+    <ClInclude Include="src\vendor\imgui\dirent\dirent.h" />
     <ClInclude Include="src\vendor\imgui\imconfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui.h" />
+    <ClInclude Include="src\vendor\imgui\ImGuiFileDialog.h" />
+    <ClInclude Include="src\vendor\imgui\ImGuiFileDialogConfig.h" />
     <ClInclude Include="src\vendor\imgui\imgui_impl_glfw.h" />
     <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3.h" />
     <ClInclude Include="src\vendor\imgui\imgui_impl_opengl3_loader.h" />

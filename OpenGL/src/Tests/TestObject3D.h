@@ -27,10 +27,11 @@ namespace Test
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 		std::unique_ptr<Shader> m_Shader;
 		std::unique_ptr<Texture> m_Texture;
+		std::string m_TexturePath = "res/textures/brick.jpeg";
 
 		glm::mat4 m_Proj, m_View, m_Model;
 
-		double prevTime;
-		float rotation;
+		float m_Rotation;
+		float m_RotationSpeed = 50.0f; // degrees per second (adjust as needed)
 	};
 }

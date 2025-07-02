@@ -68,8 +68,7 @@ namespace Test
 		//m_Shader->SetUniform4f("u_Color", 0.6f, 0.0f, 0.7f, 1.0f);
 		m_Shader->SetUniform1i("u_Texture", 0);
 
-		prevTime = glfwGetTime();
-		rotation = 0.f;
+		m_Rotation = 0.f;
 	}
 
 	TestObject3D::~TestObject3D()
@@ -78,13 +77,9 @@ namespace Test
 
 	void TestObject3D::OnUpdate(float deltaTime)
 	{
-		// Simple timer
-		double crntTime = glfwGetTime();
-		if (crntTime - prevTime >= 1 / 60)
-		{
-			rotation += 0.5f;
-			prevTime = crntTime;
-		}
+		// Rotate by degrees per second multiplied by deltaTime for smooth animation
+
+		m_Rotation += m_RotationSpeed * deltaTime;
 	}
 
 	void TestObject3D::OnRenderer()
@@ -104,7 +99,7 @@ namespace Test
 		m_Proj = glm::mat4(1.0f);
 
 		// Assigns different transformations to each matrix
-		m_Model = glm::rotate(m_Model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_Model = glm::rotate(m_Model, glm::radians(m_Rotation), glm::vec3(0.0f, 1.0f, 0.0f));
 		m_View = glm::translate(m_View, glm::vec3(0.0f, -0.5f, -2.0f));
 		m_Proj = glm::perspective(glm::radians(45.0f), (float)960 / 540, 0.1f, 100.0f);
 
@@ -120,5 +115,6 @@ namespace Test
 
 	void TestObject3D::OnImGuiRenderer()
 	{
+		ImGui::SliderFloat("Rotation Speed (deg/s)", &m_RotationSpeed, 0.0f, 360.0f);
 	}
 }
