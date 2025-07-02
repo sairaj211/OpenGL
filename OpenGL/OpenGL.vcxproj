@@ -663,6 +663,7 @@
   <ItemGroup>
     <Image Include="res\textures\brick.jpeg" />
     <Image Include="res\textures\eagle.png" />
+    <Image Include="res\textures\image.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

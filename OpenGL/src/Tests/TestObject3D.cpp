@@ -6,6 +6,7 @@
 #include "../VertexBufferLayout.h"
 #include "../Shader.h"
 #include "../Texture.h"
+#include "../vendor/imgui/ImGuiFileDialog.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include <GLFW/glfw3.h>
@@ -113,8 +114,53 @@ namespace Test
 		glDisable(GL_DEPTH_TEST);
 	}
 
+	void TestObject3D::LoadTexture(const std::string& path)
+	{
+		try
+		{
+			m_Texture = std::make_unique<Texture>(path);
+			m_TexturePath = path;
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << "Failed to load texture: " << e.what() << std::endl;
+		}
+	}
+
 	void TestObject3D::OnImGuiRenderer()
 	{
+		ImGui::Text("Current Texture: %s", m_TexturePath.c_str());
+
+		if (ImGui::Button("Open Texture File"))
+		{
+			// Open file dialog - you can specify filters if you want
+			IGFD::FileDialogConfig cfg;
+			cfg.path = ".";          // start in current directory
+			cfg.fileName = "";       // no default file name
+
+			ImGuiFileDialog::Instance()->OpenDialog(
+				"ChooseTextureFile",
+				"Choose Texture",
+				".png,.jpg,.jpeg,.bmp",
+				cfg
+			);
+		}
+
+		// Display the file dialog
+		if (ImGuiFileDialog::Instance()->Display("ChooseTextureFile"))
+		{
+			// Check if user has selected a file
+			if (ImGuiFileDialog::Instance()->IsOk())
+			{
+				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+				// Load new texture
+				TestObject3D::LoadTexture(filePathName);
+			}
+			// Close the dialog (important!)
+			ImGuiFileDialog::Instance()->Close();
+		}
+
 		ImGui::SliderFloat("Rotation Speed (deg/s)", &m_RotationSpeed, 0.0f, 360.0f);
 	}
+
 }

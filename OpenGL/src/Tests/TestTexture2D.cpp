@@ -6,6 +6,7 @@
 #include "../VertexBufferLayout.h"
 #include "../Shader.h"
 #include "../Texture.h"
+#include "../vendor/imgui/ImGuiFileDialog.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -90,21 +91,55 @@ namespace Test
             renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
         }
 
-        //// object 2
-        //{
-        //    glm::mat4 model = glm::translate(glm::mat4(1.0f), m_TranslationB);
-        //    glm::mat4 mvp = m_Proj * m_View * model;
-        //    m_Shader->Bind();
-        //    m_Shader->SetUniform4f("u_Color", 0.1f, 0.0f, 0.7f, 1.0f);
-        //    m_Shader->SetUniformMat4("u_MVP", mvp);
-        //    renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
-        //}
 	}
+
+    void TestTexture2D::LoadTexture(const std::string& path)
+    {
+        try
+        {
+            m_Texture = std::make_unique<Texture>(path);
+            m_TexturePath = path;
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "Failed to load texture: " << e.what() << std::endl;
+        }
+    }
 
 	void TestTexture2D::OnImGuiRenderer()
 	{
+        ImGui::Text("Current Texture: %s", m_TexturePath.c_str());
+
+        if (ImGui::Button("Open Texture File"))
+        {
+            // Open file dialog - you can specify filters if you want
+            IGFD::FileDialogConfig cfg;
+            cfg.path = ".";          // start in current directory
+            cfg.fileName = "";       // no default file name
+
+            ImGuiFileDialog::Instance()->OpenDialog(
+                "ChooseTextureFile",
+                "Choose Texture",
+                ".png,.jpg,.jpeg,.bmp",
+                cfg
+            );
+        }
+
+        // Display the file dialog
+        if (ImGuiFileDialog::Instance()->Display("ChooseTextureFile"))
+        {
+            // Check if user has selected a file
+            if (ImGuiFileDialog::Instance()->IsOk())
+            {
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                // Load new texture
+                TestTexture2D::LoadTexture(filePathName);
+            }
+            // Close the dialog (important!)
+            ImGuiFileDialog::Instance()->Close();
+        }
+
         ImGui::SliderFloat3("Translation obj 1", &m_TranslationA.x, 0.0f, 960.0f);
-        ImGui::SliderFloat3("Translation obj 2", &m_TranslationB.x, 0.0f, 960.0f);
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}

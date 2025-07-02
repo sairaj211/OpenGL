@@ -21,6 +21,8 @@ namespace Test
 		void OnRenderer() override;
 		void OnImGuiRenderer() override;
 	
+		void LoadTexture(const std::string& path);
+
 	private:
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
@@ -31,6 +33,7 @@ namespace Test
 
 		glm::mat4 m_Proj, m_View, m_Model;
 
+		bool m_ShowFileDialog = false;
 		float m_Rotation;
 		float m_RotationSpeed = 50.0f; // degrees per second (adjust as needed)
 	};
