@@ -26,6 +26,7 @@
 #include "Tests/TestTexture2D.h"
 #include "Tests/TestBatching.h"
 #include "Tests/TestObject3D.h"
+#include "Tests/Lighting/TestPhongLighting.h"
 
 // Utils
 #include "Utils/Camera.h"
@@ -114,8 +115,9 @@ void Application::SetupTests()
 
     m_TestMenu->RegisterTest<Test::TestClearColor>("Clear Color");
     m_TestMenu->RegisterTest<Test::TestTexture2D>("Texture 2D");
-    m_TestMenu->RegisterTest<Test::TestBatching>("Batching");
+    m_TestMenu->RegisterTest<Test::TestBatching>("Batching"); 
     m_TestMenu->RegisterTest<Test::TestObject3D>("Object 3D");
+    m_TestMenu->RegisterTest<Test::TestPhongLighting>("Phong Lighting");
 }
 
 void Application::Run()

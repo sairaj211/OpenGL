@@ -90,6 +90,9 @@
     <ClCompile Include="src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\Lighting\TestPhongLighting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vendor\glm\detail\func_common.inl">
@@ -534,6 +537,8 @@
     <None Include="res\shaders\Object3D.shader" />
     <None Include="res\shaders\Texture.shader" />
     <None Include="res\shaders\ClearColor.shader" />
+    <None Include="res\shaders\Light.shader" />
+    <None Include="res\shaders\PhongLighting.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">
@@ -1524,6 +1529,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Utils\FrameRateController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\Lighting\TestPhongLighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

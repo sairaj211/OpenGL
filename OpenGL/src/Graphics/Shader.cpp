@@ -4,6 +4,9 @@
 #include <sstream>
 #include <string>
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "Renderer.h"
 
 Shader::Shader(const std::string& filepath)
@@ -44,6 +47,26 @@ void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2,
     GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
+void Shader::SetUniform3f(const std::string& name, float v0, float v1, float v2)
+{
+    GLCall(glUniform3f(GetUniformLocation(name), v0, v1, v2));
+}
+
+void Shader::SetUniform2fvLoc(int location, glm::vec2 vector)
+{
+    GLCall(glUniform2fv(location, 1, glm::value_ptr(vector)));
+}
+
+void Shader::SetUniform3fvLoc(int location, glm::vec3 vector)
+{
+    GLCall(glUniform4fv(location, 1, glm::value_ptr(vector)));
+}
+
+void Shader::SetUniform4fvLoc(int location, glm::vec4 vector)
+{
+    GLCall(glUniform4fv(location, 1, glm::value_ptr(vector)));
+}
+
 void Shader::SetUniformMat4(const std::string& name, const glm::mat4& matrix)
 {
     GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]));
@@ -77,7 +100,40 @@ unsigned int Shader::CreateShader(const std::string& vertexShader, const std::st
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);
-    glValidateProgram(program);
+
+   /* int result;
+    GLCall(glGetProgramiv(program, GL_LINK_STATUS, &result));
+    if (result == GL_FALSE)
+    {
+        int length;
+        GLCall(glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length));
+        char* message = (char*)alloca(length * sizeof(char));
+        GLCall(glGetProgramInfoLog(program, length, &length, message));
+        std::cout << "Failed to link " << std::endl;
+        std::cout << message << std::endl;
+        return 0;
+    }*/
+
+    // Check link status
+    GLint isLinked = 0;
+    glGetProgramiv(program, GL_LINK_STATUS, &isLinked);
+    if (!isLinked) {
+        GLint maxLength = 0;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+        std::vector<GLchar> infoLog(maxLength);
+        glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+
+        std::cout << "ERROR: Shader linking failed!\n" << infoLog.data() << std::endl;
+
+        glDeleteShader(vs);
+        glDeleteShader(fs);
+        glDeleteProgram(program);
+        return 0;
+    }
+
+
+    GLCall(glValidateProgram(program));
 
     // delete the intermediates
     glDeleteShader(vs);

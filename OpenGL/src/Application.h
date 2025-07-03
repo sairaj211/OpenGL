@@ -29,10 +29,10 @@ private:
 
 private:
     GLFWwindow* m_Window = nullptr;
-    int m_WindowWidth = 960;
-    int m_WindowHeight = 540;
-    float m_ImGuiWindowWidth = 960.0f;
-    float m_ImGuiWindowHeight = 540.0f;
+    int m_WindowWidth = 1920;
+    int m_WindowHeight = 1080;
+    float m_ImGuiWindowWidth = 1920.0f;
+    float m_ImGuiWindowHeight = 1080.0f;
 
     Renderer m_Renderer;
     FrameRateController* m_FrameRateController = nullptr;

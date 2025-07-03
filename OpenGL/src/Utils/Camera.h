@@ -7,8 +7,8 @@
 
 struct CameraSettings
 {
-    int width = 800;
-    int height = 600;
+    int width = 1920;
+    int height = 1080;
     glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f);
     float fov = 45.0f;
     float nearPlane = 0.1f;
@@ -32,6 +32,7 @@ public:
     void ImGuiRender();
     void ProcessScroll(float yoffset);
     void OnResize(int width, int height);
+    glm::vec3 GetCameraPosition() { return m_Position; }
 
 private:
     Camera(const CameraSettings& settings);
