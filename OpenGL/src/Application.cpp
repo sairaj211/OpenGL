@@ -31,152 +31,233 @@
 #include "Utils/Camera.h"
 #include "Utils/FrameRateController.h"
 
-
-void Application::ResetOpenGLState()
+void FramebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-    // General safe defaults
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_BLEND);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthFunc(GL_LESS);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-    // If you're using a default VAO or binding 0
-    glBindVertexArray(0);
-    glUseProgram(0);
+    glViewport(0, 0, width, height);
+    Camera::GetInstance().OnResize(width, height);
 }
 
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    Camera& camera = Camera::GetInstance();
-    camera.ProcessScroll(static_cast<float>(yoffset));
+    Camera::GetInstance().ProcessScroll(static_cast<float>(yoffset));
 }
 
-int main()
+Application::Application()
 {
-    // Initialize GLFW
+    InitWindow();
+    InitGL();
+    InitImGui();
+    SetupTests();
+}
+
+Application::~Application()
+{
+    Shutdown();
+}
+
+void Application::InitWindow()
+{
     if (!glfwInit())
-        return -1;
+        std::exit(-1);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Create window
-    GLFWwindow* window = glfwCreateWindow(960, 540, "OpenGL Test Framework", nullptr, nullptr);
-    if (!window)
+    m_Window = glfwCreateWindow(m_WindowWidth, m_WindowHeight, "OpenGL Test Framework", nullptr, nullptr);
+    if (!m_Window)
     {
         glfwTerminate();
-        return -1;
+        std::exit(-1);
     }
 
-    // Make the window's context current 
-    glfwMakeContextCurrent(window);
- //   glfwSwapInterval(1); // Enable vsync optional
+    glfwMakeContextCurrent(m_Window);
+    glfwSetFramebufferSizeCallback(m_Window, FramebufferSizeCallback);
+    glfwSetScrollCallback(m_Window, ScrollCallback);
+}
 
-    // Initialize GLEW
+void Application::InitGL()
+{
     if (glewInit() != GLEW_OK)
     {
-        std::cout << "Failed to initialize GLEW" << std::endl;
-        return -1;
+        std::cerr << "Failed to initialize GLEW\n";
+        std::exit(-1);
     }
 
-    // Setup ImGui
+    m_CameraSettings = {
+        m_WindowWidth, m_WindowHeight,
+        glm::vec3(0.0f, 0.0f, 2.0f),
+        45.0f, 0.1f, 100.0f
+    };
+
+    Camera& camera = Camera::GetInstance(m_CameraSettings);
+    camera.SetWindow(m_Window);
+
+    m_FrameRateController = FrameRateController::GetInstance();
+    m_FrameRateController->SetMaxFrameRate(60.0f);
+}
+
+void Application::InitImGui()
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+
+    ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init();
+}
 
-    // Core Rendering Objects
-    Renderer renderer;
+void Application::SetupTests()
+{
+    m_TestMenu = new Test::TestMenu(m_CurrentTest);
+    m_CurrentTest = m_TestMenu;
 
-    // Setup Test Framework
-    Test::Test* currentTest = nullptr;
-    Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
-    currentTest = testMenu;
+    m_TestMenu->RegisterTest<Test::TestClearColor>("Clear Color");
+    m_TestMenu->RegisterTest<Test::TestTexture2D>("Texture 2D");
+    m_TestMenu->RegisterTest<Test::TestBatching>("Batching");
+    m_TestMenu->RegisterTest<Test::TestObject3D>("Object 3D");
+}
 
-    testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
-    testMenu->RegisterTest<Test::TestTexture2D>("Texture 2D");
-    testMenu->RegisterTest<Test::TestBatching>("Batching");
-    testMenu->RegisterTest<Test::TestObject3D>("Object 3D");
-
-    // Set up camera settings
-    CameraSettings settings;
-    settings.width = 960;
-    settings.height = 540;
-    settings.position = glm::vec3(0.0f, 0.0f, 2.0f);
-    settings.fov = 45.0f;
-    settings.nearPlane = 0.1f;
-    settings.farPlane = 100.0f;
-
-    // Get camera instance with configured settings
-    Camera& camera = Camera::GetInstance(settings);
-    camera.SetWindow(window);
-
-    // Register scroll callback for zoom
-    glfwSetScrollCallback(window, ScrollCallback);
-
-    // Set FrameRate
-    FrameRateController* frameRateController = FrameRateController::GetInstance();
-    frameRateController->SetMaxFrameRate(60.0);
-
-    // Main Loop
-    while (!glfwWindowShouldClose(window))
+void Application::Run()
+{
+    while (!glfwWindowShouldClose(m_Window))
     {
-        frameRateController->FrameStart();
+        m_FrameRateController->FrameStart();
 
-        renderer.SetClearColor();
-        renderer.Clear();
+        m_Renderer.Clear();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        if (currentTest)
+        if (m_CurrentTest)
         {
-            float deltaTime = (float)frameRateController->GetDeltaTime();
+            float deltaTime = (float)m_FrameRateController->GetDeltaTime();
+            Camera::GetInstance().HandleInputs();
 
-            camera.HandleInputs();
-            currentTest->OnUpdate(deltaTime);
-            currentTest->OnRenderer();
+            m_CurrentTest->OnUpdate(deltaTime);
+            m_CurrentTest->OnRenderer();
+
             ImGui::Begin("Test");
-            if (currentTest != testMenu && ImGui::Button("Back"))
+            if (m_CurrentTest != m_TestMenu && ImGui::Button("Back"))
             {
-                delete currentTest;
-                Application::ResetOpenGLState();
-                currentTest = testMenu;
+                delete m_CurrentTest;
+                ResetOpenGLState();
+                m_CurrentTest = m_TestMenu;
             }
-            currentTest->OnImGuiRenderer();
+            m_FrameRateController->ImGuiRender();
+            m_CurrentTest->OnImGuiRenderer();
             ImGui::End();
         }
-        // Draw FrameRateController ImGui UI (FPS + Slider)
-        frameRateController->ImGuiRender();
+
+        OnImGuiRender();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(m_Window);
         glfwPollEvents();
 
-        frameRateController->FrameEnd();
+        m_FrameRateController->FrameEnd();
+    }
+}
+
+void Application::OnImGuiRender()
+{
+    const float fpsWindowHeight = 40.0f;  // Adjust if needed to match actual FPS window height
+    const float spacing = 10.0f;
+    ImVec2 pos(10.0f, fpsWindowHeight + spacing + 10.0f); // Below the FPS window
+
+    //ImVec2 size(200.0f, 300.0f); // Optional fixed size
+
+    ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+    //	ImGui::SetNextWindowSize(size, ImGuiCond_Always);
+
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoNav |
+        ImGuiWindowFlags_NoMove;
+
+    static int windowWidth = 0;
+    static int windowHeight = 0;
+
+    int currentWidth, currentHeight;
+    glfwGetWindowSize(m_Window, &currentWidth, &currentHeight);
+
+    if (currentWidth != static_cast<int>(m_ImGuiWindowWidth) ||
+        currentHeight != static_cast<int>(m_ImGuiWindowHeight))
+    {
+        m_ImGuiWindowWidth = static_cast<float>(currentWidth);
+        m_ImGuiWindowHeight = static_cast<float>(currentHeight);
+
+        windowWidth = currentWidth;
+        windowHeight = currentHeight;
     }
 
-    // Cleanup
-    delete currentTest;
-    if (currentTest != testMenu)
+    ImGui::Begin("Application Settings");
+
+    ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+    static float targetFPS = static_cast<float>(m_FrameRateController->GetMaxFrameRate());
+    if (ImGui::InputFloat("Target FPS", &targetFPS, 1.0f, 10.0f, "%.1f"))
     {
-        delete testMenu;
+        if (targetFPS < 1.0f) targetFPS = 1.0f;
+        if (targetFPS > 240.0f) targetFPS = 240.0f;
+        m_FrameRateController->SetMaxFrameRate(targetFPS);
     }
+
+    if (ImGui::Checkbox("VSync", &m_EnableVSync))
+    {
+        glfwSwapInterval(m_EnableVSync ? 1 : 0);
+    }
+
+    if (ImGui::InputInt("Window Width", &windowWidth))
+    {
+        if (windowWidth < 640) windowWidth = 640;
+        if (windowWidth > 1920) windowWidth = 1920;
+
+        m_ImGuiWindowWidth = (float)windowWidth;
+        glfwSetWindowSize(m_Window, windowWidth, (int)m_ImGuiWindowHeight);
+        Camera::GetInstance().OnResize(windowWidth, (int)m_ImGuiWindowHeight);
+    }
+
+    if (ImGui::InputInt("Window Height", &windowHeight))
+    {
+        if (windowHeight < 360) windowHeight = 360;
+        if (windowHeight > 1080) windowHeight = 1080;
+
+        m_ImGuiWindowHeight = (float)windowHeight;
+        glfwSetWindowSize(m_Window, (int)m_ImGuiWindowWidth, windowHeight);
+        Camera::GetInstance().OnResize((int)m_ImGuiWindowWidth, windowHeight);
+    }
+
+    ImGui::End();
+}
+
+void Application::Shutdown()
+{
+    delete m_CurrentTest;
+    if (m_CurrentTest != m_TestMenu)
+        delete m_TestMenu;
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(m_Window);
     glfwTerminate();
+}
 
-    return 0;
+void Application::ResetOpenGLState()
+{
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthFunc(GL_LESS);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    glBindVertexArray(0);
+    glUseProgram(0);
 }

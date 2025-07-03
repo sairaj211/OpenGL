@@ -31,6 +31,7 @@ public:
     glm::mat4 CalculateMatrix() const;
     void ImGuiRender();
     void ProcessScroll(float yoffset);
+    void OnResize(int width, int height);
 
 private:
     Camera(const CameraSettings& settings);

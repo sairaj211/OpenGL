@@ -36,7 +36,7 @@ public:
 
     double GetDeltaTime() const;
     double GetFPS() const;
-
+    double GetMaxFrameRate() const;
     void ImGuiRender();
 
     // Optional: clean up the singleton

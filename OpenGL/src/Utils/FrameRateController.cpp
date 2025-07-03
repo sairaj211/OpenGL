@@ -93,15 +93,20 @@ double FrameRateController::GetFPS() const
     return (mDeltaTime > 0) ? (1.0 / mDeltaTime) : 0;
 }
 
+double FrameRateController::GetMaxFrameRate() const
+{
+    return mMaxFrameRate;
+}
+
 void FrameRateController::ImGuiRender()
 {
-    ImGui::Begin("Frame Rate Controller");
-    ImGui::Text("Current FPS: %.1f", GetFPS());
+    ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
+    ImGui::SetNextWindowBgAlpha(0.3f);
 
-    static float targetFPS = static_cast<float>(mMaxFrameRate);
-    if (ImGui::SliderFloat("Target FPS", &targetFPS, 10.0f, 144.0f))
-    {
-        SetMaxFrameRate(targetFPS);
-    }
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+
+    ImGui::Begin("FPS");
+    ImGui::Text("Current FPS: %.1f", GetFPS());
     ImGui::End();
 }

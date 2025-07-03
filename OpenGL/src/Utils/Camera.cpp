@@ -24,6 +24,12 @@ void Camera::SetWindow(GLFWwindow* window)
     m_Window = window;
 }
 
+void Camera::OnResize(int width, int height)
+{
+    m_Width = width;
+    m_Height = height;
+}
+
 glm::mat4 Camera::CalculateMatrix() const
 {
     glm::mat4 view = glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
