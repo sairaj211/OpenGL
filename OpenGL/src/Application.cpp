@@ -27,6 +27,10 @@
 #include "Tests/TestBatching.h"
 #include "Tests/TestObject3D.h"
 
+// Utils
+#include "Utils/Camera.h"
+#include "Utils/FrameRateController.h"
+
 
 void Application::ResetOpenGLState()
 {
@@ -44,6 +48,11 @@ void Application::ResetOpenGLState()
     glUseProgram(0);
 }
 
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    Camera& camera = Camera::GetInstance();
+    camera.ProcessScroll(static_cast<float>(yoffset));
+}
 
 int main()
 {
@@ -65,7 +74,7 @@ int main()
 
     // Make the window's context current 
     glfwMakeContextCurrent(window);
-    //glfwSwapInterval(1); // Enable vsync optional
+ //   glfwSwapInterval(1); // Enable vsync optional
 
     // Initialize GLEW
     if (glewInit() != GLEW_OK)
@@ -94,15 +103,30 @@ int main()
     testMenu->RegisterTest<Test::TestBatching>("Batching");
     testMenu->RegisterTest<Test::TestObject3D>("Object 3D");
 
-    // Timing
-    float lastFrameTime = glfwGetTime();
+    // Set up camera settings
+    CameraSettings settings;
+    settings.width = 960;
+    settings.height = 540;
+    settings.position = glm::vec3(0.0f, 0.0f, 2.0f);
+    settings.fov = 45.0f;
+    settings.nearPlane = 0.1f;
+    settings.farPlane = 100.0f;
+
+    // Get camera instance with configured settings
+    Camera& camera = Camera::GetInstance(settings);
+    camera.SetWindow(window);
+
+    // Register scroll callback for zoom
+    glfwSetScrollCallback(window, ScrollCallback);
+
+    // Set FrameRate
+    FrameRateController* frameRateController = FrameRateController::GetInstance();
+    frameRateController->SetMaxFrameRate(60.0);
 
     // Main Loop
     while (!glfwWindowShouldClose(window))
     {
-        float currentTime = glfwGetTime();
-        float deltaTime = currentTime - lastFrameTime;
-        lastFrameTime = currentTime;
+        frameRateController->FrameStart();
 
         renderer.SetClearColor();
         renderer.Clear();
@@ -113,9 +137,11 @@ int main()
 
         if (currentTest)
         {
+            float deltaTime = (float)frameRateController->GetDeltaTime();
+
+            camera.HandleInputs();
             currentTest->OnUpdate(deltaTime);
             currentTest->OnRenderer();
-
             ImGui::Begin("Test");
             if (currentTest != testMenu && ImGui::Button("Back"))
             {
@@ -126,12 +152,16 @@ int main()
             currentTest->OnImGuiRenderer();
             ImGui::End();
         }
+        // Draw FrameRateController ImGui UI (FPS + Slider)
+        frameRateController->ImGuiRender();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
+
+        frameRateController->FrameEnd();
     }
 
     // Cleanup

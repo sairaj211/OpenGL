@@ -155,6 +155,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\Utils\FrameRateController.cpp" />
+    <ClCompile Include="src\Utils\Camera.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Graphics\IndexBuffer.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -787,6 +790,8 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Utils\FrameRateController.h" />
+    <ClInclude Include="src\Utils\Camera.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Graphics\IndexBuffer.h" />
     <ClInclude Include="src\Graphics\Renderer.h" />

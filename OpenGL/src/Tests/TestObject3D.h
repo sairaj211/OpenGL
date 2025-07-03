@@ -1,6 +1,7 @@
 #pragma once
 
 #include "test.h"
+#include "../Utils/Camera.h"
 
 class Texture;
 class Shader;
@@ -24,6 +25,8 @@ namespace Test
 		void LoadTexture(const std::string& path);
 
 	private:
+		Camera& m_Camera = Camera::GetInstance();
+
 		std::unique_ptr<VertexArray> m_VAO;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;

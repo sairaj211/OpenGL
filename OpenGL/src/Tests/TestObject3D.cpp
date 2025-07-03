@@ -95,18 +95,19 @@ namespace Test
 		m_Texture->Bind();
 
 		// Initializes matrices so they are not the null matrix
-		m_Model = glm::mat4(1.0f);
-		m_View = glm::mat4(1.0f);
-		m_Proj = glm::mat4(1.0f);
+		//m_Model = glm::mat4(1.0f);
+	//	m_View = glm::mat4(1.0f);
+	//	m_Proj = glm::mat4(1.0f);
 
 		// Assigns different transformations to each matrix
-		m_Model = glm::rotate(m_Model, glm::radians(m_Rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		m_View = glm::translate(m_View, glm::vec3(0.0f, -0.5f, -2.0f));
-		m_Proj = glm::perspective(glm::radians(45.0f), (float)960 / 540, 0.1f, 100.0f);
+		//m_Model = glm::rotate(m_Model, glm::radians(m_Rotation), glm::vec3(0.0f, 1.0f, 0.0f));
+	//	m_View = glm::translate(m_View, glm::vec3(0.0f, -0.5f, -2.0f));
+		//m_Proj = glm::perspective(glm::radians(45.0f), (float)960 / 540, 0.1f, 100.0f);
 
 		m_Shader->Bind();
 
-		glm::mat4 mvp = m_Proj * m_View * m_Model;
+		glm::mat4 mvp = m_Camera.CalculateMatrix();
+
 		m_Shader->SetUniformMat4("u_MVP", mvp);
 
 		renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
@@ -129,6 +130,8 @@ namespace Test
 
 	void TestObject3D::OnImGuiRenderer()
 	{
+		m_Camera.ImGuiRender();
+
 		ImGui::Text("Current Texture: %s", m_TexturePath.c_str());
 
 		if (ImGui::Button("Open Texture File"))
