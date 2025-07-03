@@ -15,14 +15,14 @@ namespace Test
 {
 	TestObject3D::TestObject3D()
 	{
-		// Vertices coordinates
-		float vertices[] =
-		{ //     COORDINATES     /        COLORS      /   TexCoord  //
-			-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-			-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-			 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-			 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-			 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
+		//// Vertices coordinates
+		Vertex vertices[] = {
+				//           position              normal             color							texUV
+			{ glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 0.0f) },
+			{ glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 0.0f) },
+			{ glm::vec3(0.5f, 0.0f, -0.5f),  glm::vec3(0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 0.0f) },
+			{ glm::vec3(0.5f, 0.0f,  0.5f),  glm::vec3(0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 0.0f) },
+			{ glm::vec3(0.0f, 0.8f,  0.0f),  glm::vec3(0.0f), glm::vec3(0.92f, 0.86f, 0.76f), glm::vec2(2.5f, 5.0f) }
 		};
 
 		// Indices for vertices order
@@ -43,13 +43,14 @@ namespace Test
 		m_VAO = std::make_unique<VertexArray>();
 
 		// VERTEX BUFFER 
-		m_VertexBuffer = std::make_unique<VertexBuffer>(vertices, 8 * 5 * sizeof(float));
+		m_VertexBuffer = std::make_unique<VertexBuffer>(vertices, sizeof(vertices));
 
 		// specifies the layout
 		VertexBufferLayout layout;
-		layout.Push<float>(3); // vertices
+		layout.Push<float>(3); // position
+		layout.Push<float>(3); // normal
 		layout.Push<float>(3); // color
-		layout.Push<float>(2); // tex coords
+		layout.Push<float>(2); // texUV
 		m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
 		// INDEX BUFFER 
@@ -93,17 +94,6 @@ namespace Test
 		Renderer renderer;
 
 		m_Texture->Bind();
-
-		// Initializes matrices so they are not the null matrix
-		//m_Model = glm::mat4(1.0f);
-	//	m_View = glm::mat4(1.0f);
-	//	m_Proj = glm::mat4(1.0f);
-
-		// Assigns different transformations to each matrix
-		//m_Model = glm::rotate(m_Model, glm::radians(m_Rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-	//	m_View = glm::translate(m_View, glm::vec3(0.0f, -0.5f, -2.0f));
-		//m_Proj = glm::perspective(glm::radians(45.0f), (float)960 / 540, 0.1f, 100.0f);
-
 		m_Shader->Bind();
 
 		glm::mat4 mvp = m_Camera.CalculateMatrix();

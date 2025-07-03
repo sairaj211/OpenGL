@@ -14,28 +14,34 @@ namespace Test
 {
 	TestPhongLighting::TestPhongLighting()
 	{
-		GLfloat vertices[] =
-		{ //     COORDINATES     /        COLORS          /    TexCoord   /        NORMALS       //
-			-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-			-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-			 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 5.0f,      0.0f, -1.0f, 0.0f, // Bottom side
-			 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, -1.0f, 0.0f, // Bottom side
+		Vertex vertices[] = {
+			//           position						normal                       color							texUV
 
-			-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-			-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,     -0.8f, 0.5f,  0.0f, // Left Side
-			 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,     -0.8f, 0.5f,  0.0f, // Left Side
+			// Bottom face (y = 0), normal facing down
+			{ glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 0.0f) },
+			{ glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 5.0f) },
+			{ glm::vec3(0.5f, 0.0f, -0.5f),  glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 5.0f) },
+			{ glm::vec3(0.5f, 0.0f,  0.5f),  glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 0.0f) },
 
-			-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-			 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
-			 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f, -0.8f, // Non-facing side
+			// Left side face
+			{ glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(-0.8f, 0.5f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 0.0f) },
+			{ glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(-0.8f, 0.5f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 0.0f) },
+			{ glm::vec3(0.0f, 0.8f,  0.0f),  glm::vec3(-0.8f, 0.5f, 0.0f), glm::vec3(0.92f, 0.86f, 0.76f), glm::vec2(2.5f, 5.0f) },
 
-			 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	 0.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-			 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.8f, 0.5f,  0.0f, // Right side
-			 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.8f, 0.5f,  0.0f, // Right side
+			// Back face
+			{ glm::vec3(-0.5f, 0.0f, -0.5f), glm::vec3(0.0f, 0.5f, -0.8f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 0.0f) },
+			{ glm::vec3(0.5f, 0.0f, -0.5f),  glm::vec3(0.0f, 0.5f, -0.8f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 0.0f) },
+			{ glm::vec3(0.0f, 0.8f,  0.0f),  glm::vec3(0.0f, 0.5f, -0.8f), glm::vec3(0.92f, 0.86f, 0.76f), glm::vec2(2.5f, 5.0f) },
 
-			 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	 5.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-			-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f, 	 0.0f, 0.0f,      0.0f, 0.5f,  0.8f, // Facing side
-			 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	 2.5f, 5.0f,      0.0f, 0.5f,  0.8f  // Facing side
+			// Right side face
+			{ glm::vec3(0.5f, 0.0f, -0.5f), glm::vec3(0.8f, 0.5f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 0.0f) },
+			{ glm::vec3(0.5f, 0.0f,  0.5f), glm::vec3(0.8f, 0.5f, 0.0f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 0.0f) },
+			{ glm::vec3(0.0f, 0.8f,  0.0f), glm::vec3(0.8f, 0.5f, 0.0f), glm::vec3(0.92f, 0.86f, 0.76f), glm::vec2(2.5f, 5.0f) },
+
+			// Front face
+			{ glm::vec3(0.5f, 0.0f,  0.5f),  glm::vec3(0.0f, 0.5f, 0.8f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(5.0f, 0.0f) },
+			{ glm::vec3(-0.5f, 0.0f,  0.5f), glm::vec3(0.0f, 0.5f, 0.8f), glm::vec3(0.83f, 0.70f, 0.44f), glm::vec2(0.0f, 0.0f) },
+			{ glm::vec3(0.0f, 0.8f,  0.0f),  glm::vec3(0.0f, 0.5f, 0.8f), glm::vec3(0.92f, 0.86f, 0.76f), glm::vec2(2.5f, 5.0f) }
 		};
 
 		// Indices for vertices order
@@ -53,14 +59,14 @@ namespace Test
 		m_VAO = std::make_unique<VertexArray>();
 
 		// VERTEX BUFFER 
-		m_VertexBuffer = std::make_unique<VertexBuffer>(vertices, 16 * 11 * sizeof(float));
+		m_VertexBuffer = std::make_unique<VertexBuffer>(vertices, sizeof(vertices));
 
 		// specifies the layout
 		VertexBufferLayout layout;
-		layout.Push<float>(3); // vertices
+		layout.Push<float>(3); // position
+		layout.Push<float>(3); // normal
 		layout.Push<float>(3); // color
-		layout.Push<float>(2); // tex coords
-		layout.Push<float>(3); // normals
+		layout.Push<float>(2); // texUV
 		m_VAO->AddBuffer(*m_VertexBuffer, layout);
 
 		// INDEX BUFFER 
@@ -191,7 +197,6 @@ namespace Test
 	{
 		ImGui::SliderFloat3("Light Position", &m_LightPos.x, -5.0f, 5.0f);
 
-		ImGui::SliderFloat3("Light Position", &m_LightPos.x, -5.0f, 5.0f);
 		ImGui::ColorEdit3("Light Color", &m_LightColor.x);  // RGB editor
 	}
 }
