@@ -29,6 +29,7 @@
 #include "Tests/Lighting/TestPhongLighting.h"
 #include "Tests/Lighting/TestSpecularMap.h"
 #include "Tests/Lighting/TestTypesOfLights.h"
+#include "Tests/TestLoadModel.h"
 
 // Utils
 #include "Utils/Camera.h"
@@ -46,6 +47,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 Application::Application()
+    :m_Camera(Camera::GetInstance())
 {
     InitWindow();
     InitGL();
@@ -122,6 +124,7 @@ void Application::SetupTests()
     m_TestMenu->RegisterTest<Test::TestPhongLighting>("Phong Lighting");
     m_TestMenu->RegisterTest<Test::TestSpecularMap>("Specular Map");
     m_TestMenu->RegisterTest<Test::TestTypesOfLights>("Types of Lights");
+    m_TestMenu->RegisterTest<Test::TestLoadModel>("Model Load");
 }
 
 void Application::Run()
@@ -139,7 +142,7 @@ void Application::Run()
         if (m_CurrentTest)
         {
             float deltaTime = (float)m_FrameRateController->GetDeltaTime();
-            Camera::GetInstance().HandleInputs();
+            m_Camera.HandleInputs();
 
             m_CurrentTest->OnUpdate(deltaTime);
             m_CurrentTest->OnRenderer();
@@ -238,6 +241,7 @@ void Application::OnImGuiRender()
         glfwSetWindowSize(m_Window, (int)m_ImGuiWindowWidth, windowHeight);
         Camera::GetInstance().OnResize((int)m_ImGuiWindowWidth, windowHeight);
     }
+    m_Camera.ImGuiRender();
 
     ImGui::End();
 }

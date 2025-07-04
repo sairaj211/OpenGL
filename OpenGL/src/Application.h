@@ -28,6 +28,8 @@ private:
     void HandleResize();
 
 private:
+    Camera& m_Camera;
+
     GLFWwindow* m_Window = nullptr;
     int m_WindowWidth = 1920;
     int m_WindowHeight = 1080;

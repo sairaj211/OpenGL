@@ -125,8 +125,6 @@ namespace Test
 
 	void TestObject3D::OnImGuiRenderer()
 	{
-		m_Camera.ImGuiRender();
-
 		ImGui::Text("Current Texture: %s", m_TexturePath.c_str());
 
 		if (ImGui::Button("Open Texture File"))

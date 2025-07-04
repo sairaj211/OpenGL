@@ -39,7 +39,11 @@ void Renderer::Draw(const Mesh& mesh, const Material& mat, const glm::mat4& mode
     shader->SetUniformMat4("camMatrix", viewProj);
     shader->SetUniform3f("lightPos", lightPos.x, lightPos.y, lightPos.z);
     shader->SetUniform4f("lightColor", lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    shader->SetUniform3f("camPos", camPos.x, camPos.y, camPos.z);
+    //shader->SetUniform3f("camPos", camPos.x, camPos.y, camPos.z);
+
+    // Only set camPos if the shader expects it
+    if (shader->HasUniform("camPos"))
+        shader->SetUniform3f("camPos", camPos.x, camPos.y, camPos.z);
 
     mesh.Bind();
     GLCall(glDrawElements(GL_TRIANGLES, mesh.GetIndexCount(), GL_UNSIGNED_INT, nullptr));

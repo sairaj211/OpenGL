@@ -23,6 +23,7 @@ public:
 
 	void Bind() const;
 	void Unbind() const;
+	bool HasUniform(const std::string& name) const;
 
 	// Set Uniforms
 	void SetUniform1f(const std::string& name, float value);

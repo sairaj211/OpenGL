@@ -9,7 +9,7 @@ struct CameraSettings
 {
     int width = 1920;
     int height = 1080;
-    glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 position = glm::vec3(0.284f, 2.675f, 4.4f);
     float fov = 45.0f;
     float nearPlane = 0.1f;
     float farPlane = 100.0f;
@@ -44,7 +44,7 @@ private:
     GLFWwindow* m_Window = nullptr;
 
     glm::vec3 m_Position;
-    glm::vec3 m_Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 m_Orientation = glm::vec3(0.0f, -0.619f, -0.931f);
     glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
 
     int m_Width;

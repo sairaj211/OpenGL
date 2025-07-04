@@ -642,6 +642,7 @@
     <ClCompile Include="src\Tests\Lighting\TestPhongLighting.cpp" />
     <ClCompile Include="src\Tests\Lighting\TestSpecularMap.cpp" />
     <ClCompile Include="src\Tests\Lighting\TestTypesOfLights.cpp" />
+    <ClCompile Include="src\Tests\TestLoadModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\default.shader" />
@@ -1227,6 +1228,7 @@
     <ClInclude Include="src\Tests\Lighting\TestPhongLighting.h" />
     <ClInclude Include="src\Tests\Lighting\TestSpecularMap.h" />
     <ClInclude Include="src\Tests\Lighting\TestTypesOfLights.h" />
+    <ClInclude Include="src\Tests\TestLoadModel.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\DEMO\planks.png" />

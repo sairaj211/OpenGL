@@ -11,8 +11,16 @@ class Model
 {
 public:
     Model(const std::string& path);
-    void Draw(const Renderer& renderer, const glm::mat4& modelMatrix, const glm::mat4& viewProj,
-        const glm::vec3& lightPos, const glm::vec4& lightColor, const glm::vec3& camPos);
+
+    void Draw(const Renderer& renderer,
+        const glm::mat4& modelMatrix,
+        const glm::mat4& viewProj,
+        const glm::vec3& lightPos,
+        const glm::vec4& lightColor,
+        const glm::vec3& camPos,
+        std::shared_ptr<Material> overrideMaterial = nullptr);
+
+    void SetMaterial(std::shared_ptr<Material> material);
 
 private:
     void LoadModel(const std::string& path);
@@ -21,5 +29,7 @@ private:
 
 private:
     std::vector<std::unique_ptr<Mesh>> m_Meshes;
-    std::vector<std::unique_ptr<Material>> m_Materials;
+
+    std::shared_ptr<Material> m_CustomMaterial = nullptr;
+    std::shared_ptr<Material> m_DefaultMaterial = nullptr;
 };

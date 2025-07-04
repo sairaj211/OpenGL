@@ -8,6 +8,10 @@
 
 Model::Model(const std::string& path)
 {
+    // Create default material
+    auto defaultShader = std::make_shared<Shader>("res/shaders/default.shader");
+    m_DefaultMaterial = std::make_shared<Material>(defaultShader);
+
     LoadModel(path);
 }
 
@@ -98,29 +102,57 @@ std::unique_ptr<Mesh> Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     return std::make_unique<Mesh>(vertices.data(), vertices.size() * sizeof(Vertex), indices.data(), (unsigned int)indices.size(), layout);
 }
 
-void Model::Draw(const Renderer& renderer, const glm::mat4& modelMatrix, const glm::mat4& viewProj,
-    const glm::vec3& lightPos, const glm::vec4& lightColor, const glm::vec3& camPos)
-{
-    static std::shared_ptr<Shader> defaultShader = std::make_shared<Shader>("res/shaders/Default.shader");
-    static std::shared_ptr<Material> defaultMaterial = std::make_shared<Material>(defaultShader);
+//void Model::Draw(const Renderer& renderer, const glm::mat4& modelMatrix, const glm::mat4& viewProj,
+//    const glm::vec3& lightPos, const glm::vec4& lightColor, const glm::vec3& camPos)
+//{
+//    static std::shared_ptr<Shader> defaultShader = std::make_shared<Shader>("res/shaders/default.shader");
+//    static std::shared_ptr<Material> defaultMaterial = std::make_shared<Material>(defaultShader);
+//
+//    //defaultShader->Bind();
+//    //defaultShader->SetUniformMat4("u_Model", modelMatrix);
+//    //defaultShader->SetUniformMat4("u_ViewProj", viewProj);
+//    //defaultShader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f); // White
+//
+//    for (auto& mesh : m_Meshes)
+//    {
+//        // You may want to have materials and bind them here if loaded
+//        // For now just use a default shader/material
+//
+//        // If you want to integrate materials:
+//        // m_Materials[i]->Bind();
+//        // auto shader = m_Materials[i]->GetShader();
+//        // shader->SetUniformMat4("model", modelMatrix);
+//        // ...
+//
+//        // For simplicity, just draw the mesh (assuming the shader is already bound)
+//        renderer.Draw(*mesh, *defaultMaterial, modelMatrix, viewProj, lightPos, lightColor, camPos);
+//    }
+//}
 
-    defaultShader->Bind();
-    defaultShader->SetUniformMat4("u_Model", modelMatrix);
-    defaultShader->SetUniformMat4("u_ViewProj", viewProj);
-    defaultShader->SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f); // White
+void Model::Draw(const Renderer& renderer,
+    const glm::mat4& modelMatrix,
+    const glm::mat4& viewProj,
+    const glm::vec3& lightPos,
+    const glm::vec4& lightColor,
+    const glm::vec3& camPos,
+    std::shared_ptr<Material> overrideMaterial)
+{
+    std::shared_ptr<Material> mat = nullptr;
+
+    if (overrideMaterial)
+        mat = overrideMaterial;
+    else if (m_CustomMaterial)
+        mat = m_CustomMaterial;
+    else
+        mat = m_DefaultMaterial;
 
     for (auto& mesh : m_Meshes)
     {
-        // You may want to have materials and bind them here if loaded
-        // For now just use a default shader/material
-
-        // If you want to integrate materials:
-        // m_Materials[i]->Bind();
-        // auto shader = m_Materials[i]->GetShader();
-        // shader->SetUniformMat4("model", modelMatrix);
-        // ...
-
-        // For simplicity, just draw the mesh (assuming the shader is already bound)
-        renderer.Draw(*mesh, *defaultMaterial, modelMatrix, viewProj, lightPos, lightColor, camPos);
+        renderer.Draw(*mesh, *mat, modelMatrix, viewProj, lightPos, lightColor, camPos);
     }
+}
+
+void Model::SetMaterial(std::shared_ptr<Material> material)
+{
+    m_CustomMaterial = material;
 }
