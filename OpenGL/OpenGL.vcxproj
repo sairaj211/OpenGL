@@ -155,6 +155,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics\Material.cpp" />
+    <ClCompile Include="src\Graphics\Mesh.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Utils\FrameRateController.cpp" />
     <ClCompile Include="src\Utils\Camera.cpp" />
@@ -797,6 +799,8 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Graphics\Material.h" />
+    <ClInclude Include="src\Graphics\Mesh.h" />
     <ClInclude Include="src\Utils\FrameRateController.h" />
     <ClInclude Include="src\Utils\Camera.h" />
     <ClInclude Include="src\Application.h" />

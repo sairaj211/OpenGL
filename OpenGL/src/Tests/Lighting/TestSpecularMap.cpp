@@ -5,6 +5,8 @@
 #include "../Graphics/VertexBufferLayout.h"
 #include "../Graphics/Shader.h"
 #include "../Graphics/Texture.h"
+#include "../Graphics/Material.h"
+#include "../Graphics/Mesh.h"
 #include "../vendor/imgui/ImGuiFileDialog.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -14,7 +16,7 @@ namespace Test
 {
 	TestSpecularMap::TestSpecularMap()
 	{
-		Vertex vertices[] = {
+		Vertex planeVertices[] = {
 			//           position						normal                       color					texUV
 			{ glm::vec3(-1.f, 0.0f,  1.f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.0f, 0.0f) },
 			{ glm::vec3(-1.f, 0.0f, -1.f),  glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.0f, 1.0f) },
@@ -23,48 +25,35 @@ namespace Test
 		};
 
 		// Indices for vertices order
-		GLuint indices[] =
+		GLuint planeIndices[] =
 		{
 			0, 1, 2,
 			0, 2, 3
 		};
 
-		// VERTEX ARRAY OBJECT
-		m_VAO = std::make_unique<VertexArray>();
-
-		// VERTEX BUFFER 
-		m_VertexBuffer = std::make_unique<VertexBuffer>(vertices, sizeof(vertices));
-
 		// specifies the layout
-		VertexBufferLayout layout;
-		layout.Push<float>(3); // position
-		layout.Push<float>(3); // normal
-		layout.Push<float>(3); // color
-		layout.Push<float>(2); // texUV
-		m_VAO->AddBuffer(*m_VertexBuffer, layout);
+		VertexBufferLayout planeLayout;
+		planeLayout.Push<float>(3); // position
+		planeLayout.Push<float>(3); // normal
+		planeLayout.Push<float>(3); // color
+		planeLayout.Push<float>(2); // texUV
 
-		// INDEX BUFFER 
-		m_IndexBuffer = std::make_unique<IndexBuffer>(indices, static_cast<unsigned int>(sizeof(indices) / sizeof(indices[0])));
+		unsigned int indicesCount = static_cast<unsigned int>(sizeof(planeIndices) / sizeof(planeIndices[0]));
+		m_PlaneMesh = std::make_unique<Mesh>(planeVertices, sizeof(planeVertices), planeIndices, indicesCount, planeLayout);
 
-		// SHADER
-		m_Shader = std::make_unique<Shader>("res/shaders/SpecularMap.shader");
+		auto planeShader = std::make_shared<Shader>("res/shaders/SpecularMap.shader");
+		m_PlaneMat = std::make_unique<Material>(planeShader);
 
-		// SET projection matrix
-		m_Proj = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1.0f, 1.0f);
-		m_View = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+		// Load textures ONCE here and keep in variables
+		auto diffuse = std::make_shared<Texture>("res/textures/planks.png");
+		auto specular = std::make_shared<Texture>("res/textures/planksSpec.png");
 
-		glm::vec3 plane = glm::vec3(0.0f, -0.5f, 0.0f);
-		glm::mat4 planeModel = glm::mat4(1.0f);
-		m_Model = glm::translate(planeModel, plane);
+		// Set textures in material using variables
+		m_PlaneMat->SetTexture("diffuseTex", diffuse, 0);
+		m_PlaneMat->SetTexture("specularTex", specular, 1);
 
-		m_Texture = std::make_unique<Texture>("res/textures/planks.png");
-		m_Texture1 = std::make_unique<Texture>("res/textures/planksSpec.png");
+		m_PlaneModel = glm::translate(glm::mat4(1.f), glm::vec3(0, -0.5f, 0));
 
-		glm::mat4 lightModel = glm::mat4(1.0f);
-
-		m_Shader->Bind();
-		m_Shader->SetUniform1i("u_Texture", 0);
-		m_Shader->SetUniform1i("u_Texture1", 1);
 
 		//////////////////////////////////////////////////////////////////////////////////////////////////
 		// LIGHT 
@@ -98,30 +87,14 @@ namespace Test
 			4, 6, 7
 		};
 
-		// VERTEX ARRAY OBJECT
-		m_VAOLight = std::make_unique<VertexArray>();
-
-		// VERTEX BUFFER 
-		m_VertexBufferLight = std::make_unique<VertexBuffer>(lightVertices, sizeof(lightVertices));
-
 		// specifies the layout
 		VertexBufferLayout layoutLight;
 		layoutLight.Push<float>(3); // vertices
 
-		m_VAOLight->AddBuffer(*m_VertexBufferLight, layoutLight);
-
-		// INDEX BUFFER 
-		m_IndexBufferLight = std::make_unique<IndexBuffer>(lightIndices, static_cast<unsigned int>(sizeof(lightIndices) / sizeof(lightIndices[0])));
-
-		// SHADER
-		m_ShaderLight = std::make_unique<Shader>("res/shaders/Light.shader");
-
-		// SET projection matrix
-		m_ProjLight = glm::ortho(0.0f, 1920.0f, 0.0f, 1080.0f, -1.0f, 1.0f);
-		m_ViewLight = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-		m_ModelLight = glm::translate(lightModel, m_LightPos);
-
-		m_ShaderLight->Bind();
+		unsigned int indicesCount1 = static_cast<unsigned int>(sizeof(lightIndices) / sizeof(lightIndices[0]));
+		m_LightMesh = std::make_unique<Mesh>(lightVertices, sizeof(lightVertices), lightIndices, indicesCount1, layoutLight);
+		auto lightShader = std::make_shared<Shader>("res/shaders/Light.shader");
+		m_LightMat = std::make_unique<Material>(lightShader);
 	}
 
 	TestSpecularMap::~TestSpecularMap()
@@ -139,33 +112,15 @@ namespace Test
 
 		glEnable(GL_DEPTH_TEST);
 
-		Renderer renderer;
-
-		m_Texture->Bind(0);
-		m_Texture1->Bind(1);
-		m_Shader->Bind();
-
+		 // Draw plane
 		glm::mat4 mvp = m_Camera.CalculateMatrix();
-
-		m_Shader->SetUniformMat4("model", m_Model);
-		m_Shader->SetUniformMat4("camMatrix", mvp);
-		m_Shader->SetUniform3f("lightPos", m_LightPos.x, m_LightPos.y, m_LightPos.z);
-		m_Shader->SetUniform4f("lightColor", m_LightColor.x, m_LightColor.y, m_LightColor.z, m_LightColor.w);
-
 		glm::vec3 camPos = m_Camera.GetCameraPosition();
-		m_Shader->SetUniform3f("camPos", camPos.x, camPos.y, camPos.z);
 
-		renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
+		m_Renderer->Draw(*m_PlaneMesh, *m_PlaneMat, m_PlaneModel, mvp, m_LightPos, m_LightColor, camPos);
 
-		Renderer rendererLight;
-		m_ShaderLight->Bind();
-
+		// Light cube
 		m_ModelLight = glm::translate(glm::mat4(1.0f), m_LightPos);
-		m_ShaderLight->SetUniformMat4("model", m_ModelLight);
-		m_ShaderLight->SetUniformMat4("camMatrix", mvp);
-		m_ShaderLight->SetUniform4f("lightColor", m_LightColor.x, m_LightColor.y, m_LightColor.z, m_LightColor.w);
-
-		rendererLight.Draw(*m_VAOLight, *m_IndexBufferLight, *m_ShaderLight);
+		m_Renderer->DrawLight(*m_LightMesh, *m_LightMat, m_ModelLight, mvp, m_LightColor);
 
 		glDisable(GL_DEPTH_TEST);
 	}

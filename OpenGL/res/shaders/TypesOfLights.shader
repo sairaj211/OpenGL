@@ -53,8 +53,8 @@ in vec3 Normal;
 in vec3 crntPos;
 
 // Gets the Texture Unit from the main function
-uniform sampler2D u_Texture;
-uniform sampler2D u_Texture1;
+uniform sampler2D diffuseTex;
+uniform sampler2D specularTex;
 // Gets the color of the light from the main function
 uniform vec4 lightColor;
 // Gets the position of the light from the main function
@@ -82,7 +82,7 @@ vec4 directionalLight()
 	float specular = specAmount * specularLight;
 
 	// outputs final color
-	return (texture(u_Texture, texCoord) * (diffuse + ambient) + texture(u_Texture1, texCoord).r * specular)  * lightColor ;
+	return (texture(diffuseTex, texCoord) * (diffuse + ambient) + texture(specularTex, texCoord).r * specular)  * lightColor ;
 }
 
 vec4 pointLight()
@@ -112,7 +112,7 @@ vec4 pointLight()
 	float specular = specAmount * specularLight;
 
 	// outputs final color
-	return (texture(u_Texture, texCoord) * (diffuse * inten + ambient) + texture(u_Texture1, texCoord).r * specular * inten)  * lightColor ;
+	return (texture(diffuseTex, texCoord) * (diffuse * inten + ambient) + texture(specularTex, texCoord).r * specular * inten)  * lightColor ;
 }
 
 vec4 spotLight()
@@ -141,7 +141,7 @@ vec4 spotLight()
 	float inten = clamp((angle - outerCone) / (innerCone - outerCone), 0.0f, 1.0f);
 
 	// outputs final color
-	return (texture(u_Texture, texCoord) * (diffuse * inten + ambient) + texture(u_Texture1, texCoord).r * specular * inten)  * lightColor ;
+	return (texture(diffuseTex, texCoord) * (diffuse * inten + ambient) + texture(specularTex, texCoord).r * specular * inten)  * lightColor ;
 }
 
 
