@@ -23,6 +23,7 @@ namespace Test
 		void OnImGuiRenderer() override;
 	
 		void LoadTexture(const std::string& path);
+		const std::string& GetName()const override;
 
 	private:
 		Camera& m_Camera = Camera::GetInstance();
@@ -39,5 +40,6 @@ namespace Test
 		bool m_ShowFileDialog = false;
 		float m_Rotation;
 		float m_RotationSpeed = 50.0f; // degrees per second (adjust as needed)
+		std::string m_Name = "Object3D Test";
 	};
 }

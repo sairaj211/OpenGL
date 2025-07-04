@@ -21,6 +21,7 @@ namespace Test
 		void OnImGuiRenderer() override;
 
 		void LoadTexture(const std::string& path);
+		const std::string& GetName()const override;
 
 	private:
 		Camera& m_Camera = Camera::GetInstance();
@@ -45,6 +46,8 @@ namespace Test
 
 		bool m_ShowFileDialog = false;
 		float m_Rotation;
+
+		std::string m_Name = "PhongLighting Test";
 	};
 }
 

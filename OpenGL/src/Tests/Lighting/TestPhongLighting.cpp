@@ -199,4 +199,9 @@ namespace Test
 
 		ImGui::ColorEdit3("Light Color", &m_LightColor.x);  // RGB editor
 	}
+
+	const std::string& TestPhongLighting::GetName()const
+	{
+		return m_Name;
+	}
 }

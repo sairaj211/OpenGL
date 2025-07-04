@@ -118,6 +118,11 @@ namespace Test
 		}
 	}
 
+	const std::string& TestObject3D::GetName()const
+	{
+		return m_Name;
+	}
+
 	void TestObject3D::OnImGuiRenderer()
 	{
 		m_Camera.ImGuiRender();

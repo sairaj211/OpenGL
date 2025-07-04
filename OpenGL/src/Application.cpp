@@ -27,6 +27,8 @@
 #include "Tests/TestBatching.h"
 #include "Tests/TestObject3D.h"
 #include "Tests/Lighting/TestPhongLighting.h"
+#include "Tests/Lighting/TestSpecularMap.h"
+#include "Tests/Lighting/TestTypesOfLights.h"
 
 // Utils
 #include "Utils/Camera.h"
@@ -118,6 +120,8 @@ void Application::SetupTests()
     m_TestMenu->RegisterTest<Test::TestBatching>("Batching"); 
     m_TestMenu->RegisterTest<Test::TestObject3D>("Object 3D");
     m_TestMenu->RegisterTest<Test::TestPhongLighting>("Phong Lighting");
+    m_TestMenu->RegisterTest<Test::TestSpecularMap>("Specular Map");
+    m_TestMenu->RegisterTest<Test::TestTypesOfLights>("Types of Lights");
 }
 
 void Application::Run()
@@ -140,7 +144,8 @@ void Application::Run()
             m_CurrentTest->OnUpdate(deltaTime);
             m_CurrentTest->OnRenderer();
 
-            ImGui::Begin("Test");
+            //ImGui::Begin("Test");
+            ImGui::Begin(m_CurrentTest->GetName().c_str());
             if (m_CurrentTest != m_TestMenu && ImGui::Button("Back"))
             {
                 delete m_CurrentTest;

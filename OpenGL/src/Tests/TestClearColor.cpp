@@ -25,4 +25,8 @@ namespace Test
 	{
 		ImGui::ColorEdit4("Clear Color", m_ClearColor);
 	}
+	const std::string& TestClearColor::GetName()const
+	{
+		return m_Name;
+	}
 }

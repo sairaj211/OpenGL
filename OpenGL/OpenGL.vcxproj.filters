@@ -93,6 +93,12 @@
     <ClCompile Include="src\Tests\Lighting\TestPhongLighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Tests\Lighting\TestSpecularMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\Lighting\TestTypesOfLights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\vendor\glm\detail\func_common.inl">
@@ -539,6 +545,8 @@
     <None Include="res\shaders\ClearColor.shader" />
     <None Include="res\shaders\Light.shader" />
     <None Include="res\shaders\PhongLighting.shader" />
+    <None Include="res\shaders\SpecularMap.shader" />
+    <None Include="res\shaders\TypesOfLights.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\vendor\stb_image\stb_image.h">
@@ -1534,6 +1542,12 @@
     <ClInclude Include="src\Tests\Lighting\TestPhongLighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Tests\Lighting\TestSpecularMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tests\Lighting\TestTypesOfLights.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\eagle.png">
@@ -1543,6 +1557,18 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="res\textures\image.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\DEMO\planks.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\DEMO\planksSpec.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\planks.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\planksSpec.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

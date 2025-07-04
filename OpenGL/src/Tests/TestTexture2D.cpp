@@ -106,6 +106,11 @@ namespace Test
         }
     }
 
+    const std::string& TestTexture2D::GetName() const
+    {
+        return m_Name;
+    }
+
 	void TestTexture2D::OnImGuiRenderer()
 	{
         ImGui::Text("Current Texture: %s", m_TexturePath.c_str());

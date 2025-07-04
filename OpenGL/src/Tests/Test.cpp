@@ -40,4 +40,10 @@ namespace Test
 
         ImGui::End();
 	}
+    const std::string& TestMenu::GetName()const
+    {
+        // TODO: insert return statement here
+        static std::string name = "Test Menu";
+        return name;
+    }
 }

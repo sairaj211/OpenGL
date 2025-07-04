@@ -17,6 +17,8 @@ namespace Test
 		virtual void OnUpdate(float deltaTime){}
 		virtual void OnRenderer(){}
 		virtual void OnImGuiRenderer(){}
+
+		virtual const std::string& GetName()const = 0;
 	};
 
 	class TestMenu : public Test
@@ -38,6 +40,7 @@ namespace Test
 			}));
 		}
 
+		const std::string& GetName()const override;
 	private:
 		Test*& m_CurrentTest;
 		std::vector<std::pair<std::string, std::function<Test*()>>> m_Tests;
